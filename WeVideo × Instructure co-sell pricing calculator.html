@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>WeVideo × Instructure co-sell pricing calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --mist:#EAF2F3; --panel:#FFFFFF; --ink:#0E2A35; --ink-soft:#4A6470; --line:#C9DADD;
+  --teal:#138F98; --teal-bright:#1AA7B0; --teal-wash:#D5ECEE; --sun:#F2C14E; --sun-wash:#FFF4D6;
+  --on-ink:#FFFFFF; --focus:#1AA7B0;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --mist:#0B1E25; --panel:#12303A; --ink:#E6F1F2; --ink-soft:#9DB7BE; --line:#26505B;
+    --teal:#35C2CB; --teal-bright:#5AD3DB; --teal-wash:#173E48; --sun:#F2C14E; --sun-wash:#3A3319;
+    --on-ink:#0B1E25; --focus:#5AD3DB;
+  }
+}
+:root[data-theme="dark"]{
+  --mist:#0B1E25; --panel:#12303A; --ink:#E6F1F2; --ink-soft:#9DB7BE; --line:#26505B;
+  --teal:#35C2CB; --teal-bright:#5AD3DB; --teal-wash:#173E48; --sun:#F2C14E; --sun-wash:#3A3319;
+  --on-ink:#0B1E25; --focus:#5AD3DB;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--mist);color:var(--ink);font-family:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;line-height:1.5;font-variant-numeric:tabular-nums}
+.wrap{max-width:1120px;margin:0 auto;padding:28px 20px 48px}
+header h1{font-size:clamp(1.6rem,3.2vw,2.25rem);line-height:1.15;font-weight:800;margin:0 0 6px;letter-spacing:-0.01em}
+header p{margin:0;color:var(--ink-soft);max-width:62ch}
+.layout{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,0.85fr);gap:24px;margin-top:24px;align-items:start}
+@media (max-width:860px){.layout{grid-template-columns:1fr}}
+.form{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px}
+fieldset{border:0;margin:0 0 26px;padding:0}
+legend{font-weight:700;font-size:1.05rem;margin-bottom:12px;padding:0}
+label{display:block;font-weight:600;font-size:.92rem;margin-bottom:6px}
+.hint{font-size:.85rem;color:var(--ink-soft);margin-top:6px}
+input[type=text],input[type=number],select{width:100%;font:inherit;color:var(--ink);background:var(--mist);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+input:focus-visible,select:focus-visible,button:focus-visible,.seg input:focus-visible+span{outline:3px solid var(--focus);outline-offset:2px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:520px){.row{grid-template-columns:1fr}}
+.seg{display:grid;grid-template-columns:1fr 1fr;border:2px solid var(--ink);border-radius:10px;overflow:hidden}
+.seg label{margin:0;cursor:pointer;position:relative}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg span{display:block;text-align:center;padding:12px 8px;font-weight:700}
+.seg input:checked+span{background:var(--ink);color:var(--on-ink)}
+.users-input{font-size:1.6rem !important;font-weight:700;padding:10px 14px !important}
+/* band ladder */
+.ladder{margin-top:16px}
+.ladder ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:4px}
+.ladder li{flex:1;min-width:0;border-radius:6px;background:var(--teal-wash);padding:8px 6px 7px;text-align:center;font-size:.72rem;line-height:1.25;color:var(--ink-soft);border:2px solid transparent}
+.ladder li b{display:block;font-size:.8rem;color:var(--ink)}
+.ladder li.on{background:var(--teal);border-color:var(--teal);color:var(--on-ink)}
+.ladder li.on b{color:var(--on-ink)}
+.ladder li.custom{background:transparent;border:2px dashed var(--line)}
+.ladder li.custom.on{background:var(--sun-wash);border-color:var(--sun);color:var(--ink)}
+.ladder li.custom.on b{color:var(--ink)}
+@media (max-width:520px){.ladder li{font-size:.62rem;padding:6px 2px}.ladder li b{font-size:.68rem}}
+.addon{display:grid;grid-template-columns:1fr 110px;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.addon:first-of-type{border-top:0}
+.addon .name{font-weight:600}
+.addon .rate{font-size:.85rem;color:var(--ink-soft)}
+.addon input[type=number]{padding:8px 10px}
+.check{display:flex;justify-content:flex-end}
+.check input{width:22px;height:22px;accent-color:var(--teal)}
+.warn{background:var(--sun-wash);border-left:4px solid var(--sun);padding:10px 12px;border-radius:6px;font-size:.9rem;margin-top:10px}
+.muted{color:var(--ink-soft);font-size:.9rem}
+/* quote */
+.quote{position:sticky;top:calc(16px + env(safe-area-inset-top,0px));background:var(--ink);color:var(--on-ink);border-radius:14px;padding:24px;overflow:hidden}
+@media (max-width:860px){.quote{position:static}}
+.quote .for{font-size:.9rem;opacity:.75;margin:0}
+.quote .inst{font-size:1.2rem;font-weight:700;margin:2px 0 18px;word-break:break-word}
+.big{font-size:clamp(2.4rem,5vw,3.2rem);font-weight:800;line-height:1;letter-spacing:-0.02em}
+.big-label{font-size:.9rem;opacity:.75;margin-top:6px}
+.lines{margin:20px 0 0;padding:0;list-style:none;border-top:1px solid color-mix(in srgb,var(--on-ink) 25%,transparent)}
+.lines li{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid color-mix(in srgb,var(--on-ink) 14%,transparent);font-size:.95rem}
+.lines li span:last-child{font-weight:600;text-align:right}
+.lines li.total{font-weight:800;font-size:1.05rem;border-bottom:0}
+.path{margin-top:16px;padding:12px 14px;border-radius:8px;background:color-mix(in srgb,var(--on-ink) 10%,transparent);font-size:.92rem}
+.path strong{display:block}
+.custom-box{background:var(--sun);color:#0E2A35;border-radius:10px;padding:16px;margin-top:6px}
+.custom-box strong{display:block;font-size:1.15rem}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+button{font:inherit;font-weight:700;border-radius:8px;padding:11px 16px;cursor:pointer;border:2px solid var(--teal-bright);background:var(--teal-bright);color:#0E2A35}
+button.ghost{background:transparent;color:var(--on-ink);border-color:color-mix(in srgb,var(--on-ink) 40%,transparent)}
+.status{font-size:.85rem;min-height:1.3em;margin-top:8px;opacity:.85}
+footer{margin-top:28px;color:var(--ink-soft);font-size:.82rem;max-width:80ch}
+footer p{margin:0 0 6px}
+@media (prefers-reduced-motion:no-preference){.ladder li{transition:background-color .15s ease,border-color .15s ease}}
+@media print{body{background:#fff}.form,.actions,footer{display:none}.layout{grid-template-columns:1fr}.quote{position:static;color:#000;background:#fff;border:1px solid #999}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Co-sell pricing calculator</h1>
+    <p>For Instructure AEs quoting WeVideo. Pick the segment, enter the user count, and add any add-ons. Pricing follows Exhibit B of the co-sell agreement.</p>
+  </header>
+
+  <div class="layout">
+    <form class="form" id="f" onsubmit="return false" novalidate>
+      <fieldset>
+        <legend>Deal details</legend>
+        <div class="row">
+          <div><label for="inst">Institution</label><input type="text" id="inst" autocomplete="off" placeholder="e.g. Lakeview Unified School District"></div>
+          <div><label for="ae">Instructure AE</label><input type="text" id="ae" autocomplete="off" placeholder="Your name"></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Segment</legend>
+        <div class="seg" role="radiogroup" aria-label="Segment">
+          <label><input type="radio" name="seg" value="k12" checked><span>K-12</span></label>
+          <label><input type="radio" name="seg" value="he"><span>Higher Education</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Users</legend>
+        <label for="users">Total users, or enrollment for a site license</label>
+        <input class="users-input" type="number" id="users" min="1" step="1" inputmode="numeric" placeholder="0">
+        <p class="hint">Count everyone expected to access the instance: students, faculty, instructors and admins.</p>
+        <div class="ladder" aria-hidden="true"><ol id="ladder"></ol></div>
+        <div class="row" style="margin-top:16px">
+          <div><label for="term">Term</label>
+            <select id="term"><option value="1">1 year</option><option value="2">2 years</option><option value="3">3 years</option><option value="4">4 years</option><option value="5">5 years</option></select>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset id="addons-k12">
+        <legend>K-12 add-ons</legend>
+        <p class="muted" style="margin-top:0">Priced per user at the quoted (top-of-band) user count.</p>
+        <div class="addon"><div><div class="name">Extra storage</div><div class="rate">$2 per user for each 5 GB block</div></div><div><input type="number" id="k-stor" min="0" step="1" value="0" aria-label="5 GB blocks per user"></div></div>
+        <div class="addon"><div><div class="name">Extra export time</div><div class="rate">$2 per user for each extra hour</div></div><div><input type="number" id="k-exp" min="0" step="1" value="0" aria-label="Extra export hours per user"></div></div>
+        <div class="addon"><div><div class="name">1080p exports</div><div class="rate">$2 per user</div></div><div class="check"><input type="checkbox" id="k-1080" aria-label="Add 1080p exports"></div></div>
+        <div class="addon"><div><div class="name">4K exports</div><div class="rate">$5 per user</div></div><div class="check"><input type="checkbox" id="k-4k" aria-label="Add 4K exports"></div></div>
+      </fieldset>
+
+      <fieldset id="addons-he" hidden>
+        <legend>Higher Education add-ons</legend>
+        <label for="h-stor">Additional hosting storage (GB)</label>
+        <input type="number" id="h-stor" min="0" step="1" value="0">
+        <p class="hint">$2.00 per GB up to 999 GB. From 1 TB: $1,500 per TB (1–10 TB), $1,000 per TB (11–50 TB), $750 per TB (51+ TB).</p>
+        <div id="h-warn"></div>
+        <p class="muted">Export-time add-ons for Higher Education will be issued separately.</p>
+      </fieldset>
+    </form>
+
+    <aside class="quote" aria-live="polite">
+      <p class="for">Quote for</p>
+      <p class="inst" id="q-inst">Institution not entered</p>
+      <div id="q-body"></div>
+      <div class="actions">
+        <button type="button" id="copy">Copy quote summary</button>
+        <button type="button" class="ghost" id="print">Print</button>
+      </div>
+      <div class="status" id="status" role="status"></div>
+    </aside>
+  </div>
+
+  <footer>
+    <p>Prices are annual platform subscriptions quoted at the top of the band. Multi-year totals are the annual amount multiplied by the term. Add-ons are treated as annual and multiplied by the term.</p>
+    <p>Pricing and included storage follow the Instructure x WeVideo Co-Sell Pricing Guide (September 2026). Each band has one price, quoted at the band maximum. 1 TB is treated as 1,000 GB.</p>
+    <p>Higher Education above 40,000 users and K-12 at 40,000 users or more are custom-quoted through the Deal Desk. K-12 under 200 users is not on the co-sell guide. Boclips content is not available through the co-sell motion.</p>
+  </footer>
+</div>
+
+<script>
+(function(){
+  // Source: Instructure x WeVideo CoSell Pricing Guide [September 2026]. Price and storage are per band, quoted at the band maximum.
+  const HE_BANDS=[
+    {min:1,max:99,billed:100,price:1500,storage:500,label:"Under 100"},
+    {min:100,max:999,price:13300,storage:4995,label:"100–999"},
+    {min:1000,max:1999,price:13800,storage:9995,label:"1,000–1,999"},
+    {min:2000,max:4999,price:31700,storage:24995,label:"2,000–4,999"},
+    {min:5000,max:9999,price:49000,storage:49995,label:"5,000–9,999"},
+    {min:10000,max:14999,price:61000,storage:74995,label:"10,000–14,999"},
+    {min:15000,max:19999,price:64800,storage:99995,label:"15,000–19,999"},
+    {min:20000,max:29999,price:93000,storage:149995,label:"20,000–29,999"},
+    {min:30000,max:40000,price:108000,storage:200000,label:"30,000–40,000"}
+  ];
+  const K12_BANDS=[
+    {min:200,max:499,price:5400,storage:2500,label:"200–499"},
+    {min:500,max:999,price:7800,storage:5000,label:"500–999"},
+    {min:1000,max:2999,price:16800,storage:15000,label:"1,000–2,999"},
+    {min:3000,max:4999,price:26400,storage:25000,label:"3,000–4,999"},
+    {min:5000,max:7499,price:31500,storage:40000,label:"5,000–7,499"},
+    {min:7500,max:9999,price:40800,storage:50000,label:"7,500–9,999"},
+    {min:10000,max:19999,price:54000,storage:100000,label:"10,000–19,999"},
+    {min:20000,max:29999,price:78000,storage:150000,label:"20,000–29,999"},
+    {min:30000,max:39999,price:90000,storage:200000,label:"30,000–39,999"}
+  ];
+  const ARR_THRESHOLD=20000;
+
+  const $=id=>document.getElementById(id);
+  const usd=n=>n.toLocaleString("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0});
+  const usd2=n=>n.toLocaleString("en-US",{style:"currency",currency:"USD",minimumFractionDigits:2,maximumFractionDigits:2});
+  const kfmt=n=>n>=1000?"$"+(n/1000).toFixed(n%1000?1:0)+"K":"$"+n;
+  const num=n=>n.toLocaleString("en-US");
+  const intVal=el=>{const v=parseInt(el.value,10);return isNaN(v)||v<0?0:v};
+  const seg=()=>document.querySelector('input[name=seg]:checked').value;
+
+  function heStorageCost(gb){
+    if(gb<=0) return 0;
+    if(gb<1000) return gb*2;
+    const tb=Math.ceil(gb/1000);
+    const rate=tb<=10?1500:tb<=50?1000:750;
+    return tb*rate;
+  }
+
+  function compute(){
+    const s=seg(), users=intVal($("users")), years=parseInt($("term").value,10);
+    const r={seg:s,users,years,custom:false,empty:users<1};
+    if(r.empty) return r;
+    const bands=s==="he"?HE_BANDS:K12_BANDS;
+    if(users>bands[bands.length-1].max){r.custom=true;return r;}
+    if(users<bands[0].min){r.below=true;return r;}
+    const b=bands.find(b=>users<=b.max);
+    r.band=b; r.bandIndex=bands.indexOf(b); r.billed=b.billed||b.max; r.platform=b.price; r.storage=b.storage;
+    r.addons=[];
+    if(s==="k12"){
+      const blocks=intVal($("k-stor")), hrs=intVal($("k-exp"));
+      if(blocks) r.addons.push({name:`Extra storage (${blocks} × 5 GB per user)`,amt:blocks*2*r.billed});
+      if(hrs) r.addons.push({name:`Extra export time (${hrs} hr per user)`,amt:hrs*2*r.billed});
+      if($("k-1080").checked) r.addons.push({name:"1080p exports",amt:2*r.billed});
+      if($("k-4k").checked) r.addons.push({name:"4K exports",amt:5*r.billed});
+    }else{
+      const gb=intVal($("h-stor"));
+      r.heGb=gb;
+      if(gb) r.addons.push({name:`Additional storage (${num(gb)} GB)`,amt:heStorageCost(gb)});
+    }
+    r.addonTotal=r.addons.reduce((a,x)=>a+x.amt,0);
+    r.annual=r.platform+r.addonTotal;
+    r.total=r.annual*years;
+    return r;
+  }
+
+  function renderLadder(r){
+    const bands=r.seg==="he"?HE_BANDS:K12_BANDS;
+    const items=bands.map((b,i)=>{
+      const on=!r.empty&&!r.custom&&!r.below&&r.bandIndex===i;
+      return `<li class="${on?"on":""}"><b>${b.label}</b>${kfmt(b.price)}</li>`;
+    });
+    items.push(`<li class="custom ${r.custom?"on":""}"><b>${r.seg==="he"?"Over 40,000":"40,000+"}</b>Deal Desk</li>`);
+    $("ladder").innerHTML=items.join("");
+  }
+
+  function render(){
+    const r=compute();
+    $("addons-k12").hidden=r.seg!=="k12";
+    $("addons-he").hidden=r.seg!=="he";
+    renderLadder(r);
+    $("q-inst").textContent=$("inst").value.trim()||"Institution not entered";
+
+    const w=$("h-warn");
+    w.innerHTML="";
+    if(r.seg==="he"&&r.heGb>750&&r.heGb<1000){
+      w.innerHTML=`<div class="warn">${num(r.heGb)} GB at $2.00/GB is ${usd(r.heGb*2)}. 1 TB costs $1,500, so quoting 1,000 GB gives the customer more storage for less.</div>`;
+    }
+
+    let h="";
+    if(r.empty){
+      h=`<div class="big">—</div><div class="big-label">Enter a user count to see pricing.</div>`;
+    }else if(r.below){
+      h=`<div class="custom-box"><strong>Below the co-sell guide</strong>The K-12 co-sell guide starts at 200 users. Route ${num(r.users)} users to the WeVideo Deal Desk for a quote.</div>`;
+    }else if(r.custom){
+      h=`<div class="custom-box"><strong>Custom pricing</strong>${num(r.users)} users is above the co-sell guide's top band. Route this opportunity to the WeVideo Deal Desk for a quote.</div>`;
+    }else{
+      const yrs=r.years>1?` × ${r.years} years`:"";
+      h+=`<div class="big">${usd(r.total)}</div><div class="big-label">${r.years>1?`Total for ${r.years}-year term (${usd(r.annual)} per year)`:"Annual total"}</div>`;
+      h+=`<ul class="lines">`;
+      h+=`<li><span>${r.seg==="he"?"Higher Education":"K-12"} band</span><span>${r.band.label}</span></li>`;
+      h+=`<li><span>Quoted users (top of band)</span><span>${num(r.billed)}</span></li>`;
+      h+=`<li><span>Platform, annual</span><span>${usd(r.platform)}</span></li>`;
+      h+=`<li><span>Price per quoted user</span><span>${usd2(r.platform/r.billed)}</span></li>`;
+      h+=`<li><span>Included hosting storage</span><span>${num(r.storage)} GB</span></li>`;
+      r.addons.forEach(a=>{h+=`<li><span>${a.name}</span><span>${usd(a.amt)}</span></li>`});
+      if(r.addons.length) h+=`<li><span>Annual total</span><span>${usd(r.annual)}</span></li>`;
+      if(r.years>1) h+=`<li class="total"><span>Term total${yrs}</span><span>${usd(r.total)}</span></li>`;
+      h+=`</ul>`;
+      const oneToOne=r.annual>=ARR_THRESHOLD;
+      h+=`<div class="path"><strong>${oneToOne?"1:1 implementation with a dedicated CSM":"Cohort implementation"}</strong>${oneToOne?"ARR is $20,000 or more.":"ARR is under $20,000. The co-sell motion is built for $20,000+ deals, so confirm fit with your WeVideo contact."}</div>`;
+    }
+    $("q-body").innerHTML=h;
+    window.__quote=r;
+  }
+
+  function summary(){
+    const r=window.__quote, inst=$("inst").value.trim()||"[Institution]", ae=$("ae").value.trim()||"[AE]";
+    const date=new Date().toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"});
+    if(r.empty) return null;
+    const segName=r.seg==="he"?"Higher Education":"K-12";
+    if(r.below) return `WeVideo co-sell quote request\n${inst} (${segName})\nUsers: ${num(r.users)}\nBelow the 200-user K-12 co-sell floor: quote via WeVideo Deal Desk.\nPrepared by ${ae}, ${date}`;
+    if(r.custom) return `WeVideo co-sell quote request\n${inst} (${segName})\nUsers: ${num(r.users)}\nAbove the co-sell guide's top band: custom pricing via WeVideo Deal Desk.\nPrepared by ${ae}, ${date}`;
+    const lines=[
+      `WeVideo co-sell quote`,
+      `${inst} (${segName})`,
+      `Prepared by ${ae}, ${date}`,
+      ``,
+      `Users entered: ${num(r.users)}`,
+      `Band: ${r.band.label} (quoted at ${num(r.billed)} users)`,
+      `Platform, annual: ${usd(r.platform)}`,
+      `Included hosting storage: ${num(r.storage)} GB`
+    ];
+    r.addons.forEach(a=>lines.push(`${a.name}: ${usd(a.amt)}`));
+    lines.push(`Annual total: ${usd(r.annual)}`);
+    if(r.years>1) lines.push(`Term: ${r.years} years, total ${usd(r.total)}`);
+    lines.push(`Implementation: ${r.annual>=ARR_THRESHOLD?"1:1 with dedicated CSM":"cohort"}`);
+    return lines.join("\n");
+  }
+
+  async function copy(){
+    const text=summary(), st=$("status");
+    if(!text){st.textContent="Enter a user count first.";return;}
+    try{await navigator.clipboard.writeText(text);st.textContent="Quote summary copied.";}
+    catch(e){
+      const ta=document.createElement("textarea");ta.value=text;document.body.appendChild(ta);ta.select();
+      try{document.execCommand("copy");st.textContent="Quote summary copied.";}catch(_){st.textContent="Copy didn't work in this browser. Select the quote panel text instead.";}
+      ta.remove();
+    }
+  }
+
+  document.getElementById("f").addEventListener("input",render);
+  document.getElementById("f").addEventListener("change",render);
+  $("copy").addEventListener("click",copy);
+  $("print").addEventListener("click",()=>{try{window.print()}catch(e){}});
+  render();
+})();
+</script>
+</body>
+</html>
