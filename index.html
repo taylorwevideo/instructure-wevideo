@@ -83,6 +83,8 @@ input:focus-visible,select:focus-visible,button:focus-visible,.seg input:focus-v
 .lines li.total{font-weight:800;font-size:1.05rem;border-bottom:0}
 .path{margin-top:16px;padding:12px 14px;border-radius:8px;background:color-mix(in srgb,var(--on-ink) 10%,transparent);font-size:.92rem}
 .path strong{display:block}
+.disclaimer{margin:16px 0 0;padding:10px 12px;border-left:4px solid var(--sun);border-radius:6px;background:color-mix(in srgb,var(--on-ink) 10%,transparent);font-size:.88rem;line-height:1.45}
+.disclaimer strong{display:block}
 .custom-box{background:var(--sun);color:#0E2A35;border-radius:10px;padding:16px;margin-top:6px}
 .custom-box strong{display:block;font-size:1.15rem}
 .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
@@ -99,7 +101,7 @@ footer p{margin:0 0 6px}
 <div class="wrap">
   <header>
     <h1>Co-sell pricing calculator</h1>
-    <p>For Instructure AEs quoting WeVideo. Pick the segment, enter the user count, and add any add-ons. Pricing follows Exhibit B of the co-sell agreement.</p>
+    <p>For Instructure AEs estimating WeVideo pricing. Pick the segment, enter the user count, and add any add-ons. Estimates follow Exhibit B of the co-sell agreement and are not a quote.</p>
   </header>
 
   <div class="layout">
@@ -153,11 +155,12 @@ footer p{margin:0 0 6px}
     </form>
 
     <aside class="quote" aria-live="polite">
-      <p class="for">Quote for</p>
+      <p class="for">Estimate for</p>
       <p class="inst" id="q-inst">Institution not entered</p>
       <div id="q-body"></div>
+      <p class="disclaimer"><strong>Estimate only, not a quote.</strong> All proposal pricing must go through the approved quoting systems before it's shared with a customer.</p>
       <div class="actions">
-        <button type="button" id="copy">Copy quote summary</button>
+        <button type="button" id="copy">Copy estimate</button>
         <button type="button" class="ghost" id="print">Print</button>
       </div>
       <div class="status" id="status" role="status"></div>
@@ -273,7 +276,7 @@ footer p{margin:0 0 6px}
       h=`<div class="custom-box"><strong>Custom pricing</strong>${num(r.users)} users is above the co-sell guide's top band. Route this opportunity to the WeVideo Deal Desk for a quote.</div>`;
     }else{
       const yrs=r.years>1?` × ${r.years} years`:"";
-      h+=`<div class="big">${usd(r.total)}</div><div class="big-label">${r.years>1?`Total for ${r.years}-year term (${usd(r.annual)} per year)`:"Annual total"}</div>`;
+      h+=`<div class="big">${usd(r.total)}</div><div class="big-label">${r.years>1?`Estimated total for ${r.years}-year term (${usd(r.annual)} per year)`:"Estimated annual total"}</div>`;
       h+=`<ul class="lines">`;
       h+=`<li><span>${r.seg==="he"?"Higher Education":"K-12"} band</span><span>${r.band.label}</span></li>`;
       h+=`<li><span>Quoted users (top of band)</span><span>${num(r.billed)}</span></li>`;
@@ -299,7 +302,7 @@ footer p{margin:0 0 6px}
     if(r.below) return `WeVideo co-sell quote request\n${inst} (${segName})\nUsers: ${num(r.users)}\nBelow the 200-user K-12 co-sell floor: quote via WeVideo Deal Desk.\nPrepared by ${ae}, ${date}`;
     if(r.custom) return `WeVideo co-sell quote request\n${inst} (${segName})\nUsers: ${num(r.users)}\nAbove the co-sell guide's top band: custom pricing via WeVideo Deal Desk.\nPrepared by ${ae}, ${date}`;
     const lines=[
-      `WeVideo co-sell quote`,
+      `WeVideo co-sell price estimate (not a quote)`,
       `${inst} (${segName})`,
       `Prepared by ${ae}, ${date}`,
       ``,
@@ -312,16 +315,17 @@ footer p{margin:0 0 6px}
     lines.push(`Annual total: ${usd(r.annual)}`);
     if(r.years>1) lines.push(`Term: ${r.years} years, total ${usd(r.total)}`);
     lines.push(`Implementation: ${r.annual>=ARR_THRESHOLD?"1:1 with dedicated CSM":"cohort"}`);
+    lines.push(``,`Estimate only. All proposal pricing must go through the approved quoting systems.`);
     return lines.join("\n");
   }
 
   async function copy(){
     const text=summary(), st=$("status");
     if(!text){st.textContent="Enter a user count first.";return;}
-    try{await navigator.clipboard.writeText(text);st.textContent="Quote summary copied.";}
+    try{await navigator.clipboard.writeText(text);st.textContent="Estimate copied.";}
     catch(e){
       const ta=document.createElement("textarea");ta.value=text;document.body.appendChild(ta);ta.select();
-      try{document.execCommand("copy");st.textContent="Quote summary copied.";}catch(_){st.textContent="Copy didn't work in this browser. Select the quote panel text instead.";}
+      try{document.execCommand("copy");st.textContent="Estimate copied.";}catch(_){st.textContent="Copy didn't work in this browser. Select the quote panel text instead.";}
       ta.remove();
     }
   }
