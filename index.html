@@ -83,6 +83,11 @@ input:focus-visible,select:focus-visible,button:focus-visible,.seg input:focus-v
 .lines li.total{font-weight:800;font-size:1.05rem;border-bottom:0}
 .path{margin-top:16px;padding:12px 14px;border-radius:8px;background:color-mix(in srgb,var(--on-ink) 10%,transparent);font-size:.92rem}
 .path strong{display:block}
+.path .tier{display:block;font-size:.85rem;opacity:.8;margin-top:2px}
+.plan{margin:10px 0 0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 12px}
+.plan dt{font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;opacity:.8;padding-top:2px}
+.plan dd{margin:0}
+.fit{margin:10px 0 0;font-size:.88rem;opacity:.85}
 .disclaimer{margin:16px 0 0;padding:10px 12px;border-left:4px solid var(--sun);border-radius:6px;background:color-mix(in srgb,var(--on-ink) 10%,transparent);font-size:.88rem;line-height:1.45}
 .disclaimer strong{display:block}
 .custom-box{background:var(--sun);color:#0E2A35;border-radius:10px;padding:16px;margin-top:6px}
@@ -169,6 +174,7 @@ footer p{margin:0 0 6px}
 
   <footer>
     <p>Prices are annual platform subscriptions quoted at the top of the band. Multi-year totals are the annual amount multiplied by the term. Add-ons are treated as annual and multiplied by the term.</p>
+    <p>Onboarding pathways for new customers follow the quoted (top-of-band) seat count: 1–500 seats Asynchronous, 501–1,000 Partial 1:1, 1,001+ Full 1:1.</p>
     <p>Pricing and included storage follow the Instructure x WeVideo Co-Sell Pricing Guide (September 2026). Each band has one price, quoted at the band maximum. 1 TB is treated as 1,000 GB.</p>
     <p>Higher Education above 40,000 users and K-12 at 40,000 users or more are custom-quoted through the Deal Desk. K-12 under 200 users is not on the co-sell guide. Boclips content is not available through the co-sell motion.</p>
   </footer>
@@ -200,6 +206,13 @@ footer p{margin:0 0 6px}
     {min:30000,max:39999,price:90000,storage:200000,label:"30,000–39,999"}
   ];
   const ARR_THRESHOLD=20000;
+  // New-logo onboarding pathways (Implementation Revision Planning). Tier is set by the quoted (top-of-band) seat count.
+  function pathway(r){
+    const handoff1to1="AE sends the activation link and introduces the customer to the WeVideo onboarding team.";
+    if(r.billed<=500) return {name:"Asynchronous",tier:"1–500 seat",plan:"The WeVideo onboarding hub guides the entire onboarding process.",handoff:"AE sends the activation link and the onboarding hub link."};
+    if(r.billed<=1000) return {name:"Partial 1:1",tier:"501–1,000 seat",plan:"30-minute 1:1 kickoff, then the onboarding hub guides the rest.",handoff:handoff1to1};
+    return {name:"Full 1:1",tier:"1,001+ seat",plan:"45-minute 1:1 kickoff, admin training and use case training.",handoff:handoff1to1};
+  }
 
   const $=id=>document.getElementById(id);
   const usd=n=>n.toLocaleString("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0});
@@ -287,8 +300,9 @@ footer p{margin:0 0 6px}
       if(r.addons.length) h+=`<li><span>Annual total</span><span>${usd(r.annual)}</span></li>`;
       if(r.years>1) h+=`<li class="total"><span>Term total${yrs}</span><span>${usd(r.total)}</span></li>`;
       h+=`</ul>`;
-      const oneToOne=r.annual>=ARR_THRESHOLD;
-      h+=`<div class="path"><strong>${oneToOne?"1:1 implementation with a dedicated CSM":"Cohort implementation"}</strong>${oneToOne?"ARR is $20,000 or more.":"ARR is under $20,000. The co-sell motion is built for $20,000+ deals, so confirm fit with your WeVideo contact."}</div>`;
+      const p=pathway(r);
+      h+=`<div class="path"><strong>${p.name} onboarding</strong><span class="tier">${num(r.billed)} quoted seats · ${p.tier} tier</span><dl class="plan"><dt>Onboarding</dt><dd>${p.plan}</dd><dt>Handoff</dt><dd>${p.handoff}</dd></dl></div>`;
+      if(r.annual<ARR_THRESHOLD) h+=`<p class="fit">ARR is under $20,000. The co-sell motion is built for $20,000+ deals, so confirm fit with your WeVideo contact.</p>`;
     }
     $("q-body").innerHTML=h;
     window.__quote=r;
@@ -314,7 +328,10 @@ footer p{margin:0 0 6px}
     r.addons.forEach(a=>lines.push(`${a.name}: ${usd(a.amt)}`));
     lines.push(`Annual total: ${usd(r.annual)}`);
     if(r.years>1) lines.push(`Term: ${r.years} years, total ${usd(r.total)}`);
-    lines.push(`Implementation: ${r.annual>=ARR_THRESHOLD?"1:1 with dedicated CSM":"cohort"}`);
+    const p=pathway(r);
+    lines.push(`Onboarding: ${p.name} (${num(r.billed)} quoted seats, ${p.tier} tier)`);
+    lines.push(`Onboarding plan: ${p.plan}`);
+    lines.push(`Handoff: ${p.handoff}`);
     lines.push(``,`Estimate only. All proposal pricing must go through the approved quoting systems.`);
     return lines.join("\n");
   }
